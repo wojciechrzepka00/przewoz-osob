@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog — Przewóz osób Kraków (Legendary Kraków)</title>
+<meta name="description" content="Poradniki i artykuły o przewozie osób, wynajmie busów, transferach lotniskowych i wycieczkach w Krakowie i Małopolsce.">
+<link rel="canonical" href="https://blog.przewoz-osob-krakow.pl/">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --blue:#2a89dc; --dark:#175489; --ink:#222; --muted:#716d6e; }
+  *{ box-sizing:border-box; }
+  body{ font-family:'Roboto',sans-serif; color:var(--ink); background:#fff; margin:0; line-height:1.7; }
+  a{ color:var(--blue); }
+  .topbar{ background:var(--dark); color:#fff; }
+  .topbar-in{ max-width:960px; margin:0 auto; padding:16px 24px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+  .brand{ font-family:'Lato',sans-serif; font-weight:900; font-size:18px; color:#fff; text-decoration:none; letter-spacing:.3px; }
+  .brand span{ color:#9fd0ff; }
+  .topnav a{ color:#dceafd; text-decoration:none; font-size:14px; margin-left:16px; }
+  .topnav a:hover{ color:#fff; }
+  .hero{ background:linear-gradient(180deg,#1d5f9e,#175489); color:#fff; }
+  .hero-in{ max-width:960px; margin:0 auto; padding:46px 24px; }
+  .hero h1{ font-family:'Lato',sans-serif; font-weight:900; font-size:32px; margin:0 0 10px; }
+  .hero p{ font-size:17px; color:#dbe8f6; margin:0; max-width:640px; }
+  .wrap{ max-width:960px; margin:0 auto; padding:34px 24px 70px; }
+  .filters{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:26px; }
+  .filters button{ font-family:'Lato',sans-serif; font-weight:700; font-size:13px; border:1px solid #cfd8e3; background:#fff; color:var(--dark); padding:7px 15px; border-radius:20px; cursor:pointer; }
+  .filters button.active{ background:var(--blue); border-color:var(--blue); color:#fff; }
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:18px; }
+  .card{ border:1px solid #e3e8ef; border-radius:10px; padding:20px; text-decoration:none; color:inherit; display:flex; flex-direction:column; transition:box-shadow .15s, transform .15s; background:#fff; }
+  .card:hover{ box-shadow:0 6px 22px rgba(23,84,137,.12); transform:translateY(-2px); }
+  .card .lang{ font-size:11px; font-weight:700; letter-spacing:.5px; color:var(--blue); text-transform:uppercase; }
+  .card h2{ font-family:'Lato',sans-serif; font-size:18px; line-height:1.35; margin:8px 0 12px; color:var(--dark); }
+  .card .date{ margin-top:auto; font-size:12px; color:var(--muted); }
+  .empty{ color:var(--muted); font-size:15px; }
+  footer{ background:#f4f6f9; border-top:1px solid #e3e8ef; }
+  .foot-in{ max-width:960px; margin:0 auto; padding:26px 24px; font-size:14px; color:var(--muted); display:flex; flex-wrap:wrap; gap:8px 20px; align-items:center; }
+  .foot-in a{ color:var(--dark); text-decoration:none; }
+</style>
+</head>
+<body>
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="https://przewoz-osob-krakow.pl">Przewóz osób <span>Kraków</span></a>
+  <nav class="topnav">
+    <a href="https://przewoz-osob-krakow.pl/pl">O nas</a>
+    <a href="https://przewoz-osob-krakow.pl/pl/busy">Busy</a>
+    <a href="https://przewoz-osob-krakow.pl/pl/oferta">Oferta</a>
+    <a href="https://przewoz-osob-krakow.pl/pl/cennik">Cennik</a>
+    <a href="https://przewoz-osob-krakow.pl/pl/kontakt">Kontakt</a>
+    <a href="tel:+48728814659">+48 728 814 659</a>
+  </nav>
+</div></header>
+
+<section class="hero"><div class="hero-in">
+  <h1>Blog — Przewóz osób Kraków</h1>
+  <p>Praktyczne poradniki o wynajmie busów, transferach lotniskowych (Katowice-Pyrzowice, Kraków-Balice), weselach, konferencjach i wycieczkach w Krakowie i Małopolsce.</p>
+</div></section>
+
+<div class="wrap">
+  <div class="filters" id="filters"></div>
+  <div class="grid" id="grid"><div class="empty">Ładowanie artykułów…</div></div>
+</div>
+
+<footer><div class="foot-in">
+  <a class="brand" href="https://przewoz-osob-krakow.pl" style="color:var(--dark)">Przewóz osób Kraków — Legendary Kraków</a>
+  <a href="https://przewoz-osob-krakow.pl/pl">O nas</a>
+  <a href="https://przewoz-osob-krakow.pl/pl/busy">Busy</a>
+  <a href="https://przewoz-osob-krakow.pl/pl/oferta">Oferta</a>
+  <a href="https://przewoz-osob-krakow.pl/pl/cennik">Cennik</a>
+  <a href="https://przewoz-osob-krakow.pl/pl/kontakt">Kontakt</a>
+  <a href="tel:+48728814659">+48 728 814 659</a>
+</div></footer>
+
+<script>
+const LANG_NAMES = { pl:'Polski', en:'English', es:'Español', uk:'Українська' };
+let ALL = [], filter = 'all';
+
+fetch('posts.json').then(r => r.json()).then(posts => {
+  ALL = Array.isArray(posts) ? posts : [];
+  renderFilters();
+  render();
+}).catch(() => { document.getElementById('grid').innerHTML = '<div class="empty">Brak artykułów.</div>'; });
+
+function renderFilters() {
+  const langs = [...new Set(ALL.map(p => p.lang))];
+  const btns = [['all','Wszystkie'], ...langs.map(l => [l, LANG_NAMES[l] || l])];
+  document.getElementById('filters').innerHTML = btns.map(([k,label]) =>
+    `<button data-l="${k}" class="${k===filter?'active':''}">${label}</button>`).join('');
+  document.querySelectorAll('#filters button').forEach(b =>
+    b.onclick = () => { filter = b.dataset.l; renderFilters(); render(); });
+}
+
+function render() {
+  const list = filter === 'all' ? ALL : ALL.filter(p => p.lang === filter);
+  const grid = document.getElementById('grid');
+  if (!list.length) { grid.innerHTML = '<div class="empty">Brak artykułów w tym języku.</div>'; return; }
+  grid.innerHTML = list.map(p => `
+    <a class="card" href="${p.url}">
+      <span class="lang">${LANG_NAMES[p.lang] || p.lang}</span>
+      <h2>${p.title}</h2>
+      <span class="date">${p.date || ''}</span>
+    </a>`).join('');
+}
+</script>
+</body>
+</html>

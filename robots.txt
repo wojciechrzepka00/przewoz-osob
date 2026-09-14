@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://blog.przewoz-osob-krakow.pl/sitemap.xml

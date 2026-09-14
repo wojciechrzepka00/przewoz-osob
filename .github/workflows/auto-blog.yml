@@ -1,0 +1,33 @@
+name: Auto-publikacja artykułów na blog (PL / EN / ES / UK)
+
+on:
+  schedule:
+    # Co 3 dni o 6:00 UTC — ten sam temat od razu w 4 językach
+    - cron: "0 6 */3 * *"
+  workflow_dispatch: {}   # pozwala uruchomić ręcznie z zakładki Actions
+
+permissions:
+  contents: write
+
+jobs:
+  generate-post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Wygeneruj nowe artykuły (4 języki)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node auto-blog/generate-article.mjs
+
+      - name: Zapisz zmiany w repozytorium
+        run: |
+          git config user.name "przewoz-bot"
+          git config user.email "bot@przewoz.local"
+          git add posts.json blog/
+          git commit -m "Auto: nowe artykuly na blog (PL/EN/ES/UK)" || echo "Brak zmian do zapisania"
+          git push

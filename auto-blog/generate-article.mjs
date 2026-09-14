@@ -99,9 +99,10 @@ async function main() {
       const slug = base + "-" + lang.code + "-" + Date.now().toString().slice(-5) + ".html";
       const dir = path.join("blog", lang.code);
       fs.mkdirSync(dir, { recursive: true });
+      const date = new Date().toISOString().slice(0, 10);
       const html = articleHtml({
         title: translatedTitle, bodyHtml: body, lang: lang.code, slug,
-        ctaHref: SITE + (topic.page || ""),
+        ctaHref: SITE + (topic.page || ""), date,
       });
       fs.writeFileSync(path.join(dir, slug), html);
 
@@ -110,7 +111,7 @@ async function main() {
         topicKey: topic.topic,
         lang: lang.code,
         url: `blog/${lang.code}/${slug}`,
-        date: new Date().toISOString().slice(0, 10),
+        date,
       });
       console.log(`  [${lang.code}] OK: ${translatedTitle} -> ${slug}`);
     } catch (err) {

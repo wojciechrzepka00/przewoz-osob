@@ -39,10 +39,13 @@ for (const f of files) {
   const base = (url.split("/").filter(Boolean).pop() || f.replace(/^blog-|\.htm$/g, ""));
   const slug = base + ".html";
   const heroImg = kvImg ? `${SITE}/storage/app/media${kvImg}` : "";
-  const html = articleHtml({ title, bodyHtml: desc, lang: "pl", slug, ctaHref: SITE, ctaLabel: "Zamów przewóz", heroImg });
+  // Fikcyjne daty: najnowszy = dziś, każdy kolejny 7 dni wstecz
+  const d = new Date(); d.setDate(d.getDate() - ok * 7);
+  const date = d.toISOString().slice(0, 10);
+  const html = articleHtml({ title, bodyHtml: desc, lang: "pl", slug, ctaHref: SITE, ctaLabel: "Zamów przewóz", heroImg, date });
   fs.mkdirSync("blog/pl", { recursive: true });
   fs.writeFileSync(path.join("blog/pl", slug), html);
-  posts.push({ title, topicKey: "migracja", lang: "pl", url: `blog/pl/${slug}`, date: "" });
+  posts.push({ title, topicKey: "migracja", lang: "pl", url: `blog/pl/${slug}`, date });
   ok++;
 }
 fs.writeFileSync("posts.json", JSON.stringify(posts, null, 2));

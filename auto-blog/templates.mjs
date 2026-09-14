@@ -8,6 +8,12 @@ const DEFAULT_HERO = "/assets/hero-blog.jpg";
 
 const heroImgs = (src) => `<img class="bg_desktop" src="${src}" alt=""><img class="bg_mobile" src="${src}" alt="">`;
 
+// YYYY-MM-DD -> DD.MM.YYYY (puste zostaje puste)
+function fmtDate(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || "");
+  return m ? `${m[3]}.${m[2]}.${m[1]}` : "";
+}
+
 export const LANGS = [
   { code: "pl", label: "Polski" },
   { code: "en", label: "English" },
@@ -44,6 +50,8 @@ const BLOG_CSS = `<style>
 .blog-card .date{ font:400 12px/1 'Roboto',sans-serif; color:#716d6e; }
 .blog-cta{ display:inline-block; margin-top:26px; background:#2a89dc; color:#fff; text-decoration:none; font:700 15px/1 'Lato',sans-serif; padding:14px 30px; border-radius:6px; }
 .blog-back{ display:inline-block; margin:24px 0 0; color:#2a89dc; font:700 13px/1 'Lato',sans-serif; text-decoration:none; }
+.blog-date{ color:#716d6e; font:400 13px/1 'Roboto',sans-serif; margin:0 0 22px; }
+.blog-date::before{ content:"\\1F4C5\\00A0"; }
 .kv_blog .title h1{ position:relative; z-index:2; }
 </style>`;
 
@@ -65,7 +73,7 @@ ${langSwitcher(lang)}`;
 }
 
 // Pojedynczy artykuł — hero + treść w wrapperze motywu (prices/container/row)
-export function articleHtml({ title, bodyHtml, lang, slug, ctaHref, ctaLabel, heroImg }) {
+export function articleHtml({ title, bodyHtml, lang, slug, ctaHref, ctaLabel, heroImg, date }) {
   const t = UI[lang] || UI.pl;
   const canonical = `${BLOG}/blog/${lang}/${slug}`;
   const desc = String(title).slice(0, 155);
@@ -78,6 +86,7 @@ export function articleHtml({ title, bodyHtml, lang, slug, ctaHref, ctaLabel, he
 <section class="prices">
   <div class="container">
     <div class="row">
+      ${date ? `<p class="blog-date">${fmtDate(date)}</p>` : ""}
       ${bodyHtml}
       <p><a class="blog-cta" href="${ctaHref || SITE}">${ctaLabel || t.cta} →</a></p>
       <a class="blog-back" href="/${lang}/">← ${t.all}</a>
@@ -98,7 +107,7 @@ export function indexHtml({ lang, posts }) {
         <a class="blog-card" href="/${p.url}">
           <div class="blog-card-body">
             <h2>${p.title}</h2>
-            <span class="date">${p.date || ""}</span>
+            <span class="date">${fmtDate(p.date)}</span>
           </div>
         </a>`).join("") + `</div>`
     : `<p>${t.empty}</p>`;

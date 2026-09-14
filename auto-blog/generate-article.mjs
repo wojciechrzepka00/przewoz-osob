@@ -8,6 +8,7 @@
 
 import fs from "fs";
 import path from "path";
+import { articleHtml, buildIndexes } from "./templates.mjs";
 
 const SITE = "https://przewoz-osob-krakow.pl";
 
@@ -17,14 +18,6 @@ const LANGS = [
   { code: "es", name: "hiszpański", dir: "ltr" },
   { code: "uk", name: "ukraiński",  dir: "ltr" },
 ];
-
-// Etykiety UI per język (nagłówek/stopka artykułu)
-const UI = {
-  pl: { all: "Wszystkie artykuły", back: "Przewóz osób Kraków", cta: "Zamów przewóz", menu: ["O nas","Busy","Oferta","Cennik","Kontakt"] },
-  en: { all: "All articles",       back: "Przewóz osób Kraków", cta: "Book a transfer", menu: ["About","Fleet","Offer","Pricing","Contact"] },
-  es: { all: "Todos los artículos",back: "Przewóz osób Kraków", cta: "Reservar traslado", menu: ["Sobre nosotros","Flota","Oferta","Precios","Contacto"] },
-  uk: { all: "Усі статті",          back: "Przewóz osób Kraków", cta: "Замовити трансфер", menu: ["Про нас","Автопарк","Послуги","Ціни","Контакт"] },
-};
 
 // Temat + docelowa podstrona oferty na przewoz-osob-krakow.pl.
 // Każdy artykuł linkuje do KONKRETNEJ usługi (deep-link wsteczny = mocniejsze SEO
@@ -91,68 +84,6 @@ async function generateArticle(topic, lang) {
   return { translatedTitle, body };
 }
 
-const TEMPLATE = (title, body, lang, page) => {
-  const t = UI[lang.code] || UI.pl;
-  return `<!DOCTYPE html>
-<html lang="${lang.code}"${lang.dir === "rtl" ? ' dir="rtl"' : ""}>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${title} | Przewóz osób Kraków</title>
-<meta name="description" content="${title} — blog Przewóz osób Kraków (Legendary Kraków).">
-<link rel="canonical" href="https://blog.przewoz-osob-krakow.pl/blog/${lang.code}/__SLUG__">
-<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-<style>
-  :root{ --blue:#2a89dc; --dark:#175489; --ink:#222; --muted:#716d6e; }
-  *{ box-sizing:border-box; }
-  body{ font-family:'Roboto',sans-serif; color:var(--ink); background:#fff; margin:0; line-height:1.75; }
-  a{ color:var(--blue); }
-  .topbar{ background:var(--dark); color:#fff; }
-  .topbar-in{ max-width:900px; margin:0 auto; padding:16px 24px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
-  .brand{ font-family:'Lato',sans-serif; font-weight:900; font-size:18px; color:#fff; text-decoration:none; letter-spacing:.3px; }
-  .brand span{ color:#9fd0ff; }
-  .topnav a{ color:#dceafd; text-decoration:none; font-size:14px; margin-left:16px; }
-  .topnav a:hover{ color:#fff; }
-  .wrap{ max-width:760px; margin:0 auto; padding:44px 24px 70px; }
-  .back{ display:inline-block; margin-bottom:22px; font-size:13px; color:var(--blue); text-decoration:none; }
-  h1{ font-family:'Lato',sans-serif; font-weight:900; font-size:30px; line-height:1.25; margin:0 0 22px; color:var(--dark); }
-  article p{ font-size:17px; color:#333; margin:0 0 18px; }
-  article h3{ font-family:'Lato',sans-serif; color:var(--dark); margin:28px 0 10px; }
-  .cta{ display:inline-block; margin-top:26px; background:var(--blue); color:#fff; text-decoration:none; font-family:'Lato',sans-serif; font-weight:700; padding:13px 26px; border-radius:6px; }
-  footer{ background:#f4f6f9; border-top:1px solid #e3e8ef; }
-  .foot-in{ max-width:900px; margin:0 auto; padding:26px 24px; font-size:14px; color:var(--muted); display:flex; flex-wrap:wrap; gap:8px 20px; align-items:center; }
-  .foot-in a{ color:var(--dark); text-decoration:none; }
-</style>
-</head>
-<body>
-<header class="topbar"><div class="topbar-in">
-  <a class="brand" href="${SITE}">Przewóz osób <span>Kraków</span></a>
-  <nav class="topnav">
-    <a href="${SITE}/pl/oferta">${t.menu[2]}</a>
-    <a href="${SITE}/pl/cennik">${t.menu[3]}</a>
-    <a href="${SITE}/pl/kontakt">${t.menu[4]}</a>
-    <a href="tel:+48728814659">+48 728 814 659</a>
-  </nav>
-</div></header>
-<div class="wrap">
-  <a class="back" href="../../index.html">← ${t.all}</a>
-  <h1>${title}</h1>
-  <article>
-  ${body}
-  </article>
-  <a class="cta" href="${SITE}${page || ''}">${t.cta} →</a>
-</div>
-<footer><div class="foot-in">
-  <a class="brand" href="${SITE}" style="color:var(--dark)">Przewóz osób Kraków — Legendary Kraków</a>
-  <a href="${SITE}/pl">${t.menu[0]}</a>
-  <a href="${SITE}/pl/busy">${t.menu[1]}</a>
-  <a href="${SITE}/pl/oferta">${t.menu[2]}</a>
-  <a href="${SITE}/pl/cennik">${t.menu[3]}</a>
-  <a href="${SITE}/pl/kontakt">${t.menu[4]}</a>
-</div></footer>
-</body>
-</html>`;
-};
 
 async function main() {
   const posts = loadPosts();
@@ -168,7 +99,10 @@ async function main() {
       const slug = base + "-" + lang.code + "-" + Date.now().toString().slice(-5) + ".html";
       const dir = path.join("blog", lang.code);
       fs.mkdirSync(dir, { recursive: true });
-      const html = TEMPLATE(translatedTitle, body, lang, topic.page).replace("__SLUG__", slug);
+      const html = articleHtml({
+        title: translatedTitle, bodyHtml: body, lang: lang.code, slug,
+        ctaHref: SITE + (topic.page || ""),
+      });
       fs.writeFileSync(path.join(dir, slug), html);
 
       posts.unshift({
@@ -185,7 +119,8 @@ async function main() {
   }
 
   fs.writeFileSync("posts.json", JSON.stringify(posts, null, 2));
-  console.log("Gotowe — zapisano posts.json");
+  buildIndexes();
+  console.log("Gotowe — zapisano posts.json i przebudowano indeksy");
 }
 
 main().catch(err => { console.error(err); process.exit(1); });

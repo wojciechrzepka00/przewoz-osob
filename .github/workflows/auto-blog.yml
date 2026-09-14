@@ -28,6 +28,6 @@ jobs:
         run: |
           git config user.name "przewoz-bot"
           git config user.email "bot@przewoz.local"
-          git add posts.json blog/
+          git add -A
           git commit -m "Auto: nowe artykuly na blog (PL/EN/ES/UK)" || echo "Brak zmian do zapisania"
           git push

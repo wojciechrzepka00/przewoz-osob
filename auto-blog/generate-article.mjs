@@ -26,20 +26,22 @@ const UI = {
   uk: { all: "Усі статті",          back: "Przewóz osób Kraków", cta: "Замовити трансфер", menu: ["Про нас","Автопарк","Послуги","Ціни","Контакт"] },
 };
 
-// Tematy bazowe (po polsku — model pisze od razu w docelowym języku)
+// Temat + docelowa podstrona oferty na przewoz-osob-krakow.pl.
+// Każdy artykuł linkuje do KONKRETNEJ usługi (deep-link wsteczny = mocniejsze SEO
+// i realne powiązanie treści z ofertą firmy).
 const TOPICS = [
-  "Wynajem busa na wesele w Krakowie i okolicach",
-  "Transfer z lotniska Katowice-Pyrzowice do Krakowa",
-  "Transfer z lotniska Kraków-Balice do centrum i hoteli",
-  "Przewóz gości konferencyjnych i delegacji firmowych",
-  "Wycieczki szkolne busem — na co zwrócić uwagę przy organizacji",
-  "Przewozy pracownicze do zakładów pod Krakowem",
-  "Wyjazd na narty do Zakopanego busem z Krakowa",
-  "Transport gości na wesele — logistyka odbioru i powrotu",
-  "Przewóz osób z dużym bagażem i sprzętem sportowym",
-  "Podróż grupowa po Małopolsce — Wieliczka, Oświęcim, Zakopane",
-  "Dlaczego warto zarezerwować bus z kierowcą z wyprzedzeniem",
-  "Komfortowy przejazd dla seniorów i osób o ograniczonej mobilności",
+  { topic: "Wynajem busa na wesele w Krakowie i okolicach — jak zaplanować transport gości", page: "/pl/oferta/wynajem-busa-na-wesele" },
+  { topic: "Transport gości na konferencje i eventy firmowe w Krakowie", page: "/pl/oferta/transport-na-konferencje" },
+  { topic: "Organizacja wycieczki szkolnej busem — o czym musi pamiętać opiekun", page: "/pl/oferta/wycieczki-szkolne" },
+  { topic: "Przewozy pracownicze do zakładów i firm pod Krakowem", page: "/pl/oferta/przewozy-pracownicze" },
+  { topic: "Transport podczas delegacji firmowej — punktualność i komfort", page: "/pl/oferta/transport-podczas-delegacji" },
+  { topic: "Bezpieczny przewóz dzieci w Krakowie i okolicy — foteliki i przepisy", page: "/pl/oferta/przewoz-dzieci-krakow-i-okolice" },
+  { topic: "Transfer z lotniska Katowice-Pyrzowice do Krakowa i Zakopanego", page: "/pl/katowice-pyrzowice" },
+  { topic: "Transfer z lotniska Kraków-Balice do centrum i hoteli", page: "/pl/krakow-balice" },
+  { topic: "Jaki bus wybrać na przewóz grupy — 8, 20 czy 50 osób", page: "/pl/busy" },
+  { topic: "Wyjazd integracyjny firmy busem po Małopolsce — pomysły na trasę", page: "/pl/oferta" },
+  { topic: "Zwiedzanie Małopolski busem — Wieliczka, Oświęcim, Zakopane w jeden weekend", page: "/pl/oferta" },
+  { topic: "Dlaczego warto zarezerwować bus z kierowcą z wyprzedzeniem", page: "/pl/kontakt" },
 ];
 
 function slugify(text) {
@@ -56,7 +58,7 @@ function loadPosts() {
 
 function pickTopic(posts) {
   const used = new Set(posts.map(p => p.topicKey));
-  const unused = TOPICS.filter(t => !used.has(t));
+  const unused = TOPICS.filter(t => !used.has(t.topic));
   const pool = unused.length ? unused : TOPICS;
   return pool[Math.floor(Math.random() * pool.length)];
 }
@@ -75,7 +77,7 @@ async function generateArticle(topic, lang) {
       messages: [
         {
           role: "user",
-          content: `Napisz artykuł na blog firmy "Przewóz osób Kraków" (Legendary Kraków) — profesjonalny wynajem busów z kierowcą w Krakowie i Małopolsce: wesela, konferencje, wycieczki, przewozy pracownicze, transfery lotniskowe (Katowice-Pyrzowice, Kraków-Balice). Flota busów 8-20-50 osób. Temat (opisany po polsku, ale NAPISZ CAŁY ARTYKUŁ w języku: ${lang.name}): "${topic}". Artykuł: praktyczny, konkretny, 400-600 słów, w języku ${lang.name}, HTML (akapity <p>, ewentualnie <h3>). Nie wymyślaj konkretnych cen. Nie dodawaj tytułu H1. Zwróć TYLKO: pierwsza linia = przetłumaczony tytuł artykułu (czysty tekst, bez HTML), druga linia dokładnie "---", a dalej treść HTML w języku ${lang.name}.`,
+          content: `Piszesz na blog firmy "Przewóz osób Kraków" (Legendary Kraków, przewoz-osob-krakow.pl) — lokalny, doświadczony przewoźnik z Krakowa oferujący wynajem busów i autokarów z kierowcą w Krakowie i całej Małopolsce. Usługi firmy: wynajem busa na wesele (transport gości), transport na konferencje i eventy firmowe, wycieczki szkolne, przewozy pracownicze do zakładów, transport podczas delegacji, przewóz dzieci, transfery lotniskowe (Katowice-Pyrzowice i Kraków-Balice). Flota: klimatyzowane busy 8- i 20-osobowe oraz autokary do ok. 50 osób, sprawdzeni kierowcy. Pisz konkretnie o TEJ usłudze i realiach Krakowa/Małopolski (miejsca, trasy, praktyczne wskazówki dla klienta z regionu) — tak, żeby czytelnik od razu widział, że to lokalna firma przewozowa z Krakowa, a nie ogólny tekst. Temat (opisany po polsku, ale NAPISZ CAŁY ARTYKUŁ w języku: ${lang.name}): "${topic}". Artykuł: praktyczny, rzeczowy, 450-650 słów, w języku ${lang.name}, HTML (akapity <p>, 1-2 śródtytuły <h3>). Nie wymyślaj konkretnych cen. Nie dodawaj tytułu H1. Zwróć TYLKO: pierwsza linia = przetłumaczony tytuł artykułu (czysty tekst, bez HTML), druga linia dokładnie "---", a dalej treść HTML w języku ${lang.name}.`,
         },
       ],
     }),
@@ -89,7 +91,7 @@ async function generateArticle(topic, lang) {
   return { translatedTitle, body };
 }
 
-const TEMPLATE = (title, body, lang) => {
+const TEMPLATE = (title, body, lang, page) => {
   const t = UI[lang.code] || UI.pl;
   return `<!DOCTYPE html>
 <html lang="${lang.code}"${lang.dir === "rtl" ? ' dir="rtl"' : ""}>
@@ -138,7 +140,7 @@ const TEMPLATE = (title, body, lang) => {
   <article>
   ${body}
   </article>
-  <a class="cta" href="${SITE}">${t.cta} →</a>
+  <a class="cta" href="${SITE}${page || ''}">${t.cta} →</a>
 </div>
 <footer><div class="foot-in">
   <a class="brand" href="${SITE}" style="color:var(--dark)">Przewóz osób Kraków — Legendary Kraków</a>
@@ -155,20 +157,23 @@ const TEMPLATE = (title, body, lang) => {
 async function main() {
   const posts = loadPosts();
   const topic = pickTopic(posts);
-  console.log(`Temat tej tury: "${topic}" — generuję w ${LANGS.length} językach...`);
+  console.log(`Temat tej tury: "${topic.topic}" — generuję w ${LANGS.length} językach...`);
 
   for (const lang of LANGS) {
     try {
-      const { translatedTitle, body } = await generateArticle(topic, lang);
-      const slug = slugify(translatedTitle || topic) + "-" + Date.now().toString().slice(-5) + ".html";
+      const { translatedTitle, body } = await generateArticle(topic.topic, lang);
+      // slug z tytułu; gdy tytuł jest nie-łaciński (np. cyrylica UK) i wyjdzie pusty,
+      // użyj łacińskiego slugu z tematu PL, żeby URL był sensowny (nie "-12345.html")
+      const base = slugify(translatedTitle) || slugify(topic.topic) || "artykul";
+      const slug = base + "-" + lang.code + "-" + Date.now().toString().slice(-5) + ".html";
       const dir = path.join("blog", lang.code);
       fs.mkdirSync(dir, { recursive: true });
-      const html = TEMPLATE(translatedTitle, body, lang).replace("__SLUG__", slug);
+      const html = TEMPLATE(translatedTitle, body, lang, topic.page).replace("__SLUG__", slug);
       fs.writeFileSync(path.join(dir, slug), html);
 
       posts.unshift({
         title: translatedTitle,
-        topicKey: topic,
+        topicKey: topic.topic,
         lang: lang.code,
         url: `blog/${lang.code}/${slug}`,
         date: new Date().toISOString().slice(0, 10),

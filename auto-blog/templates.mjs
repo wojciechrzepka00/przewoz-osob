@@ -4,6 +4,9 @@ import { HEAD_ASSETS, HEADER, FOOTER } from "./layout.mjs";
 
 const SITE = "https://przewoz-osob-krakow.pl";
 const BLOG = "https://blog.przewoz-osob-krakow.pl";
+const DEFAULT_HERO = "/assets/hero-blog.jpg";
+
+const heroImgs = (src) => `<img class="bg_desktop" src="${src}" alt=""><img class="bg_mobile" src="${src}" alt="">`;
 
 export const LANGS = [
   { code: "pl", label: "Polski" },
@@ -66,9 +69,7 @@ export function articleHtml({ title, bodyHtml, lang, slug, ctaHref, ctaLabel, he
   const t = UI[lang] || UI.pl;
   const canonical = `${BLOG}/blog/${lang}/${slug}`;
   const desc = String(title).slice(0, 155);
-  const hero = heroImg
-    ? `<img class="bg_desktop" src="${heroImg}" alt=""><img class="bg_mobile" src="${heroImg}" alt="">`
-    : "";
+  const hero = heroImgs(heroImg || DEFAULT_HERO);
   return head(`${title} | Przewóz osób Kraków`, desc, canonical, lang) + `
 <section class="kv kv_blog">
   ${hero}
@@ -103,6 +104,7 @@ export function indexHtml({ lang, posts }) {
     : `<p>${t.empty}</p>`;
   return head(`${t.blogTitle} — Przewóz osób Kraków`, t.blogLead, canonical, lang) + `
 <section class="kv kv_blog">
+  ${heroImgs(DEFAULT_HERO)}
   <div class="title"><h1>${t.blogTitle}</h1></div>
 </section>
 <section class="prices blog-list">
